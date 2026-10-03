@@ -17,7 +17,7 @@ jobs:
         os: [macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
       - name: Tag matches package.json
         run: test "${GITHUB_REF_NAME#v}" = "$(bun -e 'console.log(require("./package.json").version)')"
