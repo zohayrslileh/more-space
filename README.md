@@ -107,6 +107,3 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for how to work on it, and how releases a
 ## License
 
 [MIT](LICENSE)
-
-More Space is an independent project, not affiliated with or endorsed by Anthropic, OpenAI or any
-other maker of the agents it hosts. Product names are used only to say what it works with.

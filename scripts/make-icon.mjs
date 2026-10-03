@@ -1,5 +1,6 @@
 // Renders assets/icon/icon.svg with Chromium (so the chalk filters look exactly as designed) into
 // assets/icon/icon.png (1024) and, on macOS, assets/icon/icon.icns. Run: bun run icon
+// To preview another SVG without touching the icon: electron scripts/make-icon.mjs <in.svg> <out.png>
 import { app, BrowserWindow } from "electron"
 import { execFileSync } from "node:child_process"
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
@@ -7,11 +8,13 @@ import { join } from "node:path"
 
 const folder = join(import.meta.dirname, "..", "assets", "icon")
 
+const [preview, previewOut] = process.argv.slice(2).filter(argument => argument.endsWith(".svg") || argument.endsWith(".png"))
+
 app.whenReady().then(async () => {
 
     const window = new BrowserWindow({ width: 400, height: 400, show: false })
 
-    const svg = readFileSync(join(folder, "icon.svg"), "utf8")
+    const svg = readFileSync(preview ?? join(folder, "icon.svg"), "utf8")
 
     await window.loadURL("data:text/html,<body></body>")
 
@@ -28,9 +31,11 @@ app.whenReady().then(async () => {
         image.src = "data:image/svg+xml;base64," + ${JSON.stringify(Buffer.from(svg).toString("base64"))}
     })`)
 
-    const png = join(folder, "icon.png")
+    const png = previewOut ?? join(folder, "icon.png")
 
     writeFileSync(png, Buffer.from(base64, "base64"))
+
+    if (preview) { app.quit(); return }
 
     if (process.platform === "darwin") {
 
