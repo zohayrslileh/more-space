@@ -4,7 +4,7 @@
 
 <p align="center">A chalkboard and an avatar for any terminal agent.<br>It shows its plan, its progress and its questions while it works.</p>
 
-<p align="center"><img src="docs/screenshot.png" alt="More Space: a chalkboard with a plan, linked notes and a quiz above a floating terminal"></p>
+<p align="center"><img src="docs/hero.gif" width="960" alt="An agent sketches a plan on the chalkboard: a title, a checklist, a flow, a pinned note circled and linked, a crossed-out idea, while its avatar thinks, works and cheers"></p>
 
 ## What it is
 

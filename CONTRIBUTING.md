@@ -28,6 +28,7 @@ macOS and Linux.
 `agent/laboratory/` holds small scripts used while building:
 
 - `command-roundtrip.ts` drives the command against a real board without the window.
+- `hero.ts` records `docs/hero.gif` (the README animation) in a throwaway project.
 - `cdp.ts` drives a running window through DevTools: start it with
   `bun start -- --remote-debugging-port=9333`, then `bun agent/laboratory/cdp.ts shot out.png`,
   `type "<text>"`, `eval "<js>"`, `wheel`, `fill`, `enter`.
