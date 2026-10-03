@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- The app's icon: a point circled in chalk on a slate, over the faint trace of erased writing.
+       The one source for every icon file (see scripts/make-icon.mjs). -->
+  <defs>
+    <filter id="chalk" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="3" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G" result="r"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.2 0 0 0 1.75" result="m"/>
+      <feComposite in="r" in2="m" operator="in"/>
+    </filter>
+    <filter id="dust" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 .93  0 0 0 0 .92  0 0 0 0 .89  0 0 0 .07 0"/>
+    </filter>
+    <radialGradient id="haze" cx="35%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#2a2e2c"/><stop offset=".6" stop-color="#1a1d1c"/><stop offset="1" stop-color="#121413"/>
+    </radialGradient>
+    <!-- macOS icons sit inside a margin; the slate is the rounded square within it -->
+    <clipPath id="slate"><rect x="100" y="100" width="824" height="824" rx="185"/></clipPath>
+  </defs>
+  <g clip-path="url(#slate)">
+    <rect x="100" y="100" width="824" height="824" fill="url(#haze)"/>
+    <rect x="100" y="100" width="824" height="824" filter="url(#dust)"/>
+    <g transform="translate(512 512) scale(1.13) translate(-518 -517)">
+      <g filter="url(#chalk)" fill="none" stroke-linecap="round">
+        <path d="M210 330 C330 316 470 340 600 322 M200 430 C360 414 520 440 760 420" stroke="#ecebe4" stroke-width="26" opacity=".14"/>
+        <path d="M520 278 C700 270 806 380 796 520 C786 676 660 760 512 756 C352 752 236 660 240 512 C244 372 360 282 552 296 C596 300 640 312 680 330" stroke="#f1d880" stroke-width="30"/>
+        <circle cx="512" cy="520" r="46" fill="#ecebe4" stroke="none"/>
+        <path d="M610 640 L700 700" stroke="#f3b47c" stroke-width="26"/>
+      </g>
+    </g>
+  </g>
+</svg>

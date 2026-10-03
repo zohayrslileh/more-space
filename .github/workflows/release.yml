@@ -1,0 +1,29 @@
+name: Release
+
+# Push a tag like v0.2.0 (matching "version" in package.json) to build and attach installers to a
+# draft release. Review the draft on GitHub, then publish it.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Tag matches package.json
+        run: test "${GITHUB_REF_NAME#v}" = "$(bun -e 'console.log(require("./package.json").version)')"
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+      - run: bun test
+      - run: bun run release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

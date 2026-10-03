@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "jsx": "react-jsx",
+        "strict": true,
+        "noEmit": true,
+        "skipLibCheck": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "resolveJsonModule": true,
+        "verbatimModuleSyntax": true,
+        "types": ["bun", "node"],
+        "paths": {
+            "~/*": ["./*"],
+            "@/*": ["./source/*"]
+        }
+    },
+    "include": ["source", "scripts", "tests"]
+}
