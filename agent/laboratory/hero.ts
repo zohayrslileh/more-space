@@ -1,5 +1,7 @@
-// Records docs/hero.gif: the board alone (no window chrome, toolbar or terminal) while the agent
-// command draws a small scene on it, with the avatar. Uses a throwaway project so no real board changes.
+// Records docs/hero.gif: a finished board scene, still, with only the avatar moving in a seamless loop.
+// The agent command draws the scene in a throwaway project (no real board changes); then the avatar's
+// looping animations are paused and stepped through exactly one cycle, frame by frame, and each frame
+// is cropped to the drawings.
 //   bun agent/laboratory/hero.ts
 import { $ } from "bun"
 import { mkdtempSync, readdirSync, rmSync, statSync } from "node:fs"
@@ -10,7 +12,7 @@ const root = join(import.meta.dirname, "..", "..")
 
 const port = 9335
 
-const width = 1120, height = 600
+const width = 1500, height = 860, scale = 2, fps = 30, margin = 44
 
 const project = mkdtempSync(join(tmpdir(), "hero-board-"))
 
@@ -40,28 +42,13 @@ let counter = 0
 
 const pending = new Map<number, (value: any) => void>()
 
-const shots: { file: string, time: number }[] = []
 
-socket.onmessage = async event => {
+socket.onmessage = event => {
 
     const message = JSON.parse(String(event.data))
 
     if (message.id && pending.has(message.id)) { pending.get(message.id)!(message.result); pending.delete(message.id) }
-
-    else if (message.method === "Page.screencastFrame") {
-
-        const { data, metadata, sessionId } = message.params
-
-        const file = join(frames, `${String(shots.length).padStart(5, "0")}.png`)
-
-        shots.push({ file, time: metadata.timestamp })
-
-        call("Page.screencastFrameAck", { sessionId })
-
-        await Bun.write(file, Buffer.from(data, "base64"))
-    }
 }
-
 await new Promise(resolve => socket.onopen = resolve)
 
 function call(method: string, params: object = {}) {
@@ -73,7 +60,7 @@ function call(method: string, params: object = {}) {
     return new Promise<any>(resolve => pending.set(id, resolve))
 }
 
-await call("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false })
+await call("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: scale, mobile: false })
 
 await call("Runtime.evaluate", {
     expression: `document.head.insertAdjacentHTML("beforeend", "<style>.titlebar,.toolbar,.terminal-panel,.terminal-reveal-zone,.onboard{display:none!important}.window{display:block!important;height:100vh}.workspace{height:100vh}</style>")`
@@ -86,9 +73,8 @@ await run(`view show 0,0 8,4`)
 
 await Bun.sleep(1200)
 
-await call("Page.startScreencast", { format: "png", everyNthFrame: 1 })
-
-const beat = (seconds: number) => Bun.sleep(seconds * 1000)
+// Spaced like an agent would, so each piece finishes drawing before the next.
+const beat = (seconds: number) => Bun.sleep(seconds * 700)
 
 await beat(0.8)
 
@@ -146,23 +132,45 @@ await run(`avatar say "Tests next!"`)
 
 await beat(3.2)
 
-await call("Page.stopScreencast")
+// Let every stroke finish.
+await beat(4)
 
-await beat(0.5)
+const evaluate = async (expression: string) => (await call("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true })).result.value
+
+// The drawings' bounds, with an even margin, and one full cycle of every looping animation.
+const { box, period } = await evaluate(`(() => {
+    const rects = [...document.querySelectorAll("[data-item]:not(.ghost), [data-avatar], .bubble, .emphasis")].map(element => element.getBoundingClientRect()).filter(rect => rect.width && rect.height)
+    const left = Math.min(...rects.map(rect => rect.left)) - ${margin}, top = Math.min(...rects.map(rect => rect.top)) - ${margin}
+    const right = Math.max(...rects.map(rect => rect.right)) + ${margin}, bottom = Math.max(...rects.map(rect => rect.bottom)) + ${margin}
+    const loops = document.getAnimations().filter(animation => animation.effect.getTiming().iterations === Infinity)
+    const gcd = (a, b) => b ? gcd(b, a % b) : a
+    const period = loops.map(animation => Math.round(animation.effect.getTiming().duration)).reduce((a, b) => a * b / gcd(a, b), 1)
+    loops.forEach(animation => animation.pause())
+    return { box: { x: left, y: top, width: right - left, height: bottom - top }, period }
+})()`)
+
+const count = Math.round(period / 1000 * fps)
+
+for (let frame = 0; frame < count; frame++) {
+
+    await evaluate(`new Promise(resolve => {
+        document.getAnimations().filter(animation => animation.effect.getTiming().iterations === Infinity).forEach(animation => animation.currentTime = ${frame * period / count})
+        requestAnimationFrame(() => requestAnimationFrame(resolve))
+    })`)
+
+    const shot = await call("Page.captureScreenshot", { format: "png", clip: { ...box, scale: 1 } })
+
+    await Bun.write(join(frames, `${String(frame).padStart(4, "0")}.png`), Buffer.from(shot.data, "base64"))
+}
 
 app.kill()
 
-// Each frame lasts until the next one; the last holds before the loop starts over.
-const list = shots.map((shot, index) => `file '${shot.file}'\nduration ${((shots[index + 1]?.time ?? shot.time + 2.5) - shot.time).toFixed(3)}`).join("\n") + `\nfile '${shots.at(-1)!.file}'\n`
-
-await Bun.write(join(frames, "list.txt"), list)
-
 const output = join(root, "docs", "hero.gif")
 
-await $`ffmpeg -y -loglevel error -f concat -safe 0 -i ${join(frames, "list.txt")} -vf "fps=20,scale=960:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=256:stats_mode=full[p];[b][p]paletteuse=dither=sierra2_4a" -loop 0 ${output}`
+await $`ffmpeg -y -loglevel error -framerate ${fps} -i ${join(frames, "%04d.png")} -vf "scale=1000:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=256:stats_mode=full[p];[b][p]paletteuse=dither=sierra2_4a:diff_mode=rectangle" -loop 0 ${output}`
 
 rmSync(frames, { recursive: true, force: true })
 
 rmSync(project, { recursive: true, force: true })
 
-console.log(`${shots.length} frames → ${output} (${(statSync(output).size / 1024 / 1024).toFixed(1)} MB)`)
+console.log(`${count} frames over ${period}ms, ${Math.round(box.width)}x${Math.round(box.height)} → ${output} (${(statSync(output).size / 1024).toFixed(0)} KB)`)
