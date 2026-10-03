@@ -501,47 +501,51 @@ function Astronomer({ mood, asking }: Drawing) {
     )
 }
 
-// ---------- Clawd ----------
-// Claude Code's mascot as pixel art, colored in with chalk: a wide body, two slit eyes, short arms
-// sticking out, four little legs. Drawn on an 8-unit pixel grid; the eyes change with the mood.
+// ---------- Mochi ----------
+// A round, plump pixel spirit colored in with chalk: one soft lavender body, big eyes, pink cheeks,
+// two tiny feet. Nothing to carry; the face and the bounce say everything. 14 × 12 pixels.
 
-const clawdOrange = "#d97757"
+const mochiColors = { body: "#bba9ec", shade: "#9a87d6", light: "#ddd2fa", cheek: "#f0a5b6", feet: "#6b5aa8", tear: "#9fcbec" }
 
-function Clawd({ mood, asking }: Drawing) {
+function Mochi({ mood, asking }: Drawing) {
 
-    // Proportions measured from the mascot: a body about 12 × 10 pixels, arms in the lower half of
-    // the sides, thin legs two at each end, eyes as tall slits.
-    const u = 7, x0 = 4, y0 = 22
+    const u = 7, x0 = 11, y0 = 22
 
     const px = (col: number, row: number, w = 1, h = 1) => ({ x: x0 + col * u, y: y0 + row * u, width: w * u, height: h * u })
 
-    const board = "var(--board)"
+    const fill = (color: string, col: number, row: number, w = 1, h = 1) => <rect {...px(col, row, w, h)} fill={color} />
 
-    const dark = (col: number, row: number, w: number, h: number) => <rect {...px(col, row, w, h)} fill={board} stroke="none" />
+    const c = mochiColors, dark = "var(--board)"
 
-    const eyes = {
-        idle: <>{dark(4, 2, 1, 3)}{dark(11, 2, 1, 3)}</>,
-        thinking: <>{dark(4, 1, 1, 2.5)}{dark(11, 1, 1, 2.5)}</>,
-        working: <>{dark(4, 2, 1, 3)}{dark(11, 2, 1, 3)}</>,
-        happy: <>{dark(3, 3, 1, 1)}{dark(4, 2, 1, 1)}{dark(5, 3, 1, 1)}{dark(10, 3, 1, 1)}{dark(11, 2, 1, 1)}{dark(12, 3, 1, 1)}</>,
-        confused: <>{dark(4, 3, 1, 3)}{dark(11, 1, 1, 3)}</>,
-        surprised: <>{dark(3.5, 2, 2, 2)}{dark(10.5, 2, 2, 2)}</>,
-        sleepy: <>{dark(3.5, 3.5, 2, 0.7)}{dark(10.5, 3.5, 2, 0.7)}</>
-    }[mood] ?? <>{dark(4, 2, 1, 3)}{dark(11, 2, 1, 3)}</>
+    const ink = (col: number, row: number, w = 1, h = 1) => fill(dark, col, row, w, h)
+
+    const face = {
+        thinking: <>{ink(4, 3, 1, 2)}{ink(9, 3, 1, 2)}{ink(6, 7, 2, 0.6)}</>,
+        working: <>{ink(4, 4, 1, 2)}{ink(9, 4, 1, 2)}{ink(6, 7, 2, 0.6)}</>,
+        happy: <>{ink(3, 5, 1, 1)}{ink(4, 4, 1, 1)}{ink(5, 5, 1, 1)}{ink(8, 5, 1, 1)}{ink(9, 4, 1, 1)}{ink(10, 5, 1, 1)}{ink(6, 7, 2, 1)}</>,
+        confused: <>{ink(4, 5, 1, 1.4)}{ink(9, 3.6, 1, 2)}{ink(6, 7.4, 2, 0.6)}</>,
+        surprised: <>{ink(3.5, 3.5, 2, 2)}{ink(8.5, 3.5, 2, 2)}{ink(6.3, 7, 1.4, 1.4)}</>,
+        sad: <>{ink(4, 5, 1, 1)}{ink(9, 5, 1, 1)}{ink(3.4, 4.2, 1.4, 0.5)}{ink(9.2, 4.2, 1.4, 0.5)}{ink(6, 7.6, 2, 0.5)}{fill(c.tear, 3.8, 6.2, 0.7, 1.2)}</>,
+        sleepy: <>{ink(3.5, 5, 2, 0.5)}{ink(8.5, 5, 2, 0.5)}{ink(6.3, 7.2, 1.4, 0.6)}</>
+    }[mood] ?? <>{ink(4, 4, 1, 2)}{ink(9, 4, 1, 2)}{ink(6, 7, 2, 0.6)}</>
 
     return (
-        <g className="clawd-body" stroke="none" fill={clawdOrange}>
-            {/* body */}
-            <rect {...px(2, 0, 12, 10)} />
-            {/* arms: the right one goes up while asking */}
-            <rect {...px(0, 5, 2, 3)} />
-            {asking ? <g className="raised-hand"><rect {...px(14, 0, 2, 3)} /><rect {...px(14.5, -2, 1.5, 2)} /></g> : <rect {...px(14, 5, 2, 3)} />}
-            {/* four thin legs */}
-            <g className="legs left"><rect {...px(2, 10, 1, 3)} /><rect {...px(4, 10, 1, 3)} /></g>
-            <g className="legs right"><rect {...px(11, 10, 1, 3)} /><rect {...px(13, 10, 1, 3)} /></g>
-            {eyes}
+        <g className="mochi-body" stroke="none">
+            {/* the round body, built row by row */}
+            {fill(c.body, 4, 0, 6)}{fill(c.body, 2, 1, 10)}{fill(c.body, 1, 2, 12)}{fill(c.body, 0, 3, 14, 6)}
+            {fill(c.shade, 0, 8, 14)}{fill(c.shade, 1, 9, 12)}{fill(c.shade, 2, 10, 10)}
+            {fill(c.light, 3, 1.4, 2, 0.8)}{fill(c.light, 2, 2.2, 1, 0.8)}
+            {/* cheeks */}
+            {mood !== "sad" && <>{fill(c.cheek, 2, 6, 1.5, 1)}{fill(c.cheek, 10.5, 6, 1.5, 1)}</>}
+            {face}
+            {/* tiny feet */}
+            <g className="feet left">{fill(c.feet, 3, 11, 3, 1)}</g>
+            <g className="feet right">{fill(c.feet, 8, 11, 3, 1)}</g>
+            {/* a little nub of an arm goes up while asking */}
+            {asking && <g className="raised-hand">{fill(c.body, 14, 2, 1.4, 2)}{fill(c.body, 14.4, 0.6, 1, 1.6)}</g>}
             {mood === "thinking" && <Dots />}
             {mood === "confused" && <text x="104" y="18" fontSize="26" fill={orange} fontFamily="Caveat">?</text>}
+            {mood === "surprised" && <text x="104" y="20" fontSize="28" fill={yellow} fontFamily="Caveat">!</text>}
             {mood === "sleepy" && <Z />}
         </g>
     )
@@ -622,7 +626,7 @@ function AnimeHero({ mood, asking }: Drawing) {
 }
 
 const drawings: Record<string, (props: Drawing) => ReactNode> = {
-    clawd: Clawd,
+    mochi: Mochi,
     anime: AnimeHero,
     chalky: Chalky, penguin: Penguin, owl: Owl, robot: Robot, cat: Cat,
     cowboy: Cowboy, samurai: Samurai, viking: Viking, astronomer: Astronomer

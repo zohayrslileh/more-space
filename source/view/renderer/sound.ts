@@ -607,7 +607,7 @@ const chime: Instrument = (audio, out, time, frequency, length) => {
     carrier.connect(ring).connect(out)
 }
 
-// Clawd: 8-bit chiptune, a fast arpeggio and a noise click.
+// Mochi: 8-bit chiptune, a fast arpeggio and a noise click.
 const chip: Instrument = (audio, out, time, frequency, length) => {
 
     const source = tone(audio, "square", frequency, time, length)
@@ -660,6 +660,6 @@ const voices: Record<string, Voice> = {
     astronomer: { instrument: pluck, base: 196, gain: 0.35, scale: [0, 1, 4, 5, 7, 8, 10], beat: 0.13, entrance: [[0, 0.5], [1, 0.5], [0, 0.5], [1, 0.5]] },
     // high pentatonic, bouncy, a sparkle run first
     anime: { instrument: chime, base: 660, gain: 0.08, scale: [0, 2, 4, 7, 9], beat: 0.09, entrance: [[7, 0.4], [9, 0.4], [12, 0.4], [16, 0.8]] },
-    // game arpeggio notes, fast, a coin-like "ba-ding" first
-    clawd: { instrument: chip, base: 523, gain: 0.04, scale: [0, 4, 7], beat: 0.07, entrance: [[7, 0.8], [12, 2]] }
+    // high pentatonic game notes, quick, a bouncy octave "boing" first
+    mochi: { instrument: chip, base: 659, gain: 0.04, scale: [0, 2, 4, 7, 9], beat: 0.08, entrance: [[0, 0.6], [12, 1.8]] }
 }

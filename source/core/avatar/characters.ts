@@ -28,16 +28,17 @@ export interface Character {
 
 export const characters: Character[] = [
     {
-        id: "clawd",
-        name: "Clawd",
-        personality: "the Claude Code mascot, in pixels; small, curious, always busy",
+        id: "mochi",
+        name: "Mochi",
+        personality: "a round little pixel spirit, soft and plump; cheerful, bouncy, easily amazed",
         moods: [
-            { name: "idle", meaning: "waiting, nothing going on", expression: "neutral" },
+            { name: "idle", meaning: "waiting, nothing going on; breathes softly", expression: "neutral" },
             { name: "thinking", meaning: "reading, planning; eyes up", expression: "thinking" },
-            { name: "working", meaning: "making changes; little legs stepping", expression: "working" },
+            { name: "working", meaning: "making changes, running things; bounces along", expression: "working" },
             { name: "happy", meaning: "something worked or is done; hops", expression: "happy" },
             { name: "confused", meaning: "something unexpected; not sure yet", expression: "confused" },
             { name: "surprised", meaning: "found something notable", expression: "surprised" },
+            { name: "sad", meaning: "something failed or went wrong", expression: "sad" },
             { name: "sleepy", meaning: "a long wait: builds, installs, slow tests", expression: "calm" }
         ]
     },
@@ -174,7 +175,7 @@ export const characters: Character[] = [
     }
 ]
 
-export const defaultCharacter = "chalky"
+export const defaultCharacter = "mochi"
 
 export function findCharacter(id: string | undefined) {
 

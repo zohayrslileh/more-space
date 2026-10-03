@@ -452,9 +452,13 @@ button:focus-visible { outline: 2px solid var(--chalk-yellow); outline-offset: 1
 
     .character-cat .tail { animation: swish 3.5s ease-in-out infinite; }
 
-    .character-clawd.mood-working .legs.left { animation: step .4s steps(1, end) infinite; }
-    .character-clawd.mood-working .legs.right { animation: step .4s steps(1, end) infinite .2s; }
-    .character-clawd.mood-happy .clawd-body { animation: hop .6s steps(3, end) infinite; }
+    .character-mochi .mochi-body { transform-box: fill-box; transform-origin: 50% 100%; }
+    .character-mochi.mood-idle .mochi-body, .character-mochi.mood-sleepy .mochi-body { animation: squish 2.4s steps(2, jump-none) infinite; }
+    .character-mochi.mood-working .mochi-body { animation: squish .5s steps(2, jump-none) infinite; }
+    .character-mochi.mood-working .feet.left { animation: step .5s steps(1, end) infinite; }
+    .character-mochi.mood-working .feet.right { animation: step .5s steps(1, end) infinite .25s; }
+    .character-mochi.mood-happy .mochi-body { animation: hop .6s steps(3, end) infinite; }
+    .character-mochi.mood-surprised .mochi-body { animation: shake .3s ease-in-out 2; }
     .character-anime .scarf { transform-box: fill-box; transform-origin: 0% 50%; animation: flutter 1.8s ease-in-out infinite; }
     .character-anime .sparkle { transform-box: fill-box; transform-origin: center; animation: twinkle 1.2s ease-in-out infinite; }
     .character-anime .sparkle:nth-of-type(2) { animation-delay: .4s; }
@@ -465,6 +469,7 @@ button:focus-visible { outline: 2px solid var(--chalk-yellow); outline-offset: 1
     .character-cat.mood-focused .tail { animation-duration: 1.2s; }
 }
 
+@keyframes squish { 50% { transform: scale(1.05, .94); } }
 @keyframes bob { 50% { transform: translateY(-1.5%); } }
 @keyframes blink { 0%, 100% { opacity: .25; } 40% { opacity: 1; } }
 @keyframes sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }

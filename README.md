@@ -4,7 +4,7 @@
 
 <p align="center">A chalkboard and an avatar for any terminal agent.<br>It shows its plan, its progress and its questions while it works.</p>
 
-<p align="center"><img src="docs/hero.gif" width="960" alt="A chalkboard with a plan: a title, a checklist, a flow, a pinned note circled and linked, a crossed-out idea, and the Clawd avatar hopping beside it"></p>
+<p align="center"><img src="docs/hero.gif" width="960" alt="A chalkboard with a plan: a title, a checklist, a flow, a pinned note circled and linked, a crossed-out idea, and Mochi, the default avatar, hopping beside it"></p>
 
 ## What it is
 
@@ -59,8 +59,8 @@ The avatar also follows the terminal by itself: it looks busy while the program 
 
 ## Characters, sound and handwriting
 
-- **Characters**: Clawd, Chalky, Penguin, Owl, Robot, Cat, Cowboy, Samurai, Viking, Astronomer and
-  Anime Hero. Each has its own moods (the agent reads them with `avatar info`), drawing and voice.
+- **Characters**: Mochi (the default, a plump pixel spirit), Chalky, Penguin, Owl, Robot, Cat, Cowboy,
+  Samurai, Viking, Astronomer and Anime Hero. Each has its own moods (the agent reads them with `avatar info`), drawing and voice.
 - **Sound**: chalk on slate as it writes, a bell for questions, each character's own voice on a mood
   change. One button turns it all off.
 - **Handwriting**: six chalk-like fonts; Patrick Hand by default.
@@ -107,3 +107,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for how to work on it, and how releases a
 ## License
 
 [MIT](LICENSE)
+
+More Space is an independent project, not affiliated with or endorsed by Anthropic, OpenAI or any
+other maker of the agents it hosts. Product names are used only to say what it works with.
