@@ -66,11 +66,19 @@ describe("working tree", () => {
         rmSync(root, { recursive: true, force: true })
     }, 10_000)
 
-    test("terminal activity still speaks", () => {
+    test("the terminal speaks only for the moments that matter", () => {
 
         const board = new Board()
 
         board.expressFiles({ changed: [{ path: "a.ts", kind: "modified" }], reverted: [] })
+
+        board.expressActivity("working")
+
+        expect(board.state().avatar.quiet).toBe(true)
+
+        board.expressActivity("idle")
+
+        expect(board.state().avatar).toMatchObject({ say: "Done", quiet: undefined })
 
         board.expressActivity("attention")
 

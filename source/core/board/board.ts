@@ -365,8 +365,9 @@ export default class Board {
 
         const mood = activity === "working" ? this.moodFor(["working"]) : activity === "attention" ? this.moodFor(["alert", "surprised", "confused"]) : line ? this.moodFor(["happy", "calm"]) : "idle"
 
-        // "Done" settles back to rest after a moment.
-        this.express(mood, line, activity === "idle" && !!line)
+        // Only the moments that matter speak ("Done", "Your turn"); working, which comes and goes with
+        // every burst of output, stays quiet. "Done" settles back to rest after a moment.
+        this.express(mood, line, activity === "idle" && !!line, !line)
     }
 
     // The avatar notices files changing on the branch: edits, new and deleted files, undone edits, commits.
@@ -401,7 +402,7 @@ export default class Board {
     }
 
     // An automatic mood and line; with settle, it goes back to what the terminal shows after a moment.
-    // A quiet one changes the mood without the character's voice, and settles back quietly too.
+    // A quiet one changes the mood without the character's voice. Settling back to rest is always quiet.
     private express(mood: string, line: string | undefined, settle: boolean, quiet = false) {
 
         if (Date.now() - this.agentTouchedAvatar < agentPrecedence) return
@@ -421,7 +422,7 @@ export default class Board {
 
             if (!this.automatic.mood) return
 
-            this.avatar = { ...this.avatar, mood: this.terminal === "working" ? this.moodFor(["working"]) : "idle", say: this.automatic.say ? undefined : this.avatar.say }
+            this.avatar = { ...this.avatar, mood: this.terminal === "working" ? this.moodFor(["working"]) : "idle", say: this.automatic.say ? undefined : this.avatar.say, quiet: true }
 
             this.automatic = { mood: true, say: false }
 
