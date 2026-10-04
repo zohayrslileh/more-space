@@ -22,6 +22,10 @@ const bridge: Bridge = {
 
     chooseFont: id => ipcRenderer.invoke(channels.chooseFont, id),
 
+    voiceMoods: () => ipcRenderer.invoke(channels.voiceMoods),
+
+    setVoiceMoods: on => ipcRenderer.invoke(channels.setVoiceMoods, on),
+
     chooseProject: () => ipcRenderer.invoke(channels.chooseProject),
 
     openProject: path => ipcRenderer.invoke(channels.openProject, path),

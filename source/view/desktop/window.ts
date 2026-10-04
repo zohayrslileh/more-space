@@ -89,6 +89,10 @@ export function openWindow(application: Application, distDirectory: string, proj
 
     ipcMain.handle(channels.chooseFont, async (_, id: string) => { await application.chooseFont(String(id)) })
 
+    ipcMain.handle(channels.voiceMoods, () => application.settings.get().voiceMoods)
+
+    ipcMain.handle(channels.setVoiceMoods, async (_, on: boolean) => { await application.settings.set({ voiceMoods: on === true }) })
+
     ipcMain.handle(channels.chooseProject, () => projects.choose())
 
     ipcMain.handle(channels.openProject, (_, path: string) => projects.open(String(path)))
@@ -121,7 +125,7 @@ export function openWindow(application: Application, distDirectory: string, proj
 
         unsubscribeView()
 
-        for (const channel of [channels.info, channels.boardGet, channels.boardAnswer, channels.chooseCharacter, channels.font, channels.chooseFont, channels.chooseProject, channels.openProject, channels.copyText, channels.terminalOpen]) ipcMain.removeHandler(channel)
+        for (const channel of [channels.info, channels.boardGet, channels.boardAnswer, channels.chooseCharacter, channels.font, channels.chooseFont, channels.voiceMoods, channels.setVoiceMoods, channels.chooseProject, channels.openProject, channels.copyText, channels.terminalOpen]) ipcMain.removeHandler(channel)
 
         for (const channel of [channels.boardViewport, channels.boardSizes, channels.terminalWrite, channels.terminalResize]) ipcMain.removeAllListeners(channel)
     })

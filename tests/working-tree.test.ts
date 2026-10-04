@@ -76,17 +76,17 @@ describe("working tree", () => {
 
         board.expressActivity("working")
 
-        expect(board.state().avatar.quiet).toBe(true)
+        expect(board.state().avatar.voice).toBeUndefined()
 
         board.expressActivity("idle")
 
         await Bun.sleep(60)
 
-        expect(board.state().avatar).toMatchObject({ say: "Done", quiet: undefined })
+        expect(board.state().avatar).toMatchObject({ say: "Done", voice: "attention" })
 
         board.expressActivity("attention")
 
-        expect(board.state().avatar.quiet).toBeUndefined()
+        expect(board.state().avatar.voice).toBe("attention")
     })
 
     test("the avatar reacts in the character's own moods, quietly, then settles", () => {
@@ -97,7 +97,7 @@ describe("working tree", () => {
 
         board.expressFiles({ changed: [{ path: "src/auth.ts", kind: "modified" }], reverted: [] })
 
-        expect(board.state().avatar).toMatchObject({ mood: "working", say: "Editing auth.ts", quiet: true })
+        expect(board.state().avatar).toMatchObject({ mood: "working", say: "Editing auth.ts", voice: undefined })
 
         board.expressFiles({ changed: [{ path: "x.ts", kind: "added" }, { path: "y.ts", kind: "modified" }], reverted: [] })
 
@@ -109,7 +109,7 @@ describe("working tree", () => {
 
         board.setMood("thinking")
 
-        expect(board.state().avatar.quiet).toBeUndefined()
+        expect(board.state().avatar.voice).toBe("agent")
 
         board.expressFiles({ changed: [{ path: "gone.ts", kind: "deleted" }], reverted: [] })
 

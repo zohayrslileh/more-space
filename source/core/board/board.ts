@@ -247,7 +247,7 @@ export default class Board {
 
         this.automatic.mood = false
 
-        this.avatar = { ...this.avatar, mood, quiet: undefined }
+        this.avatar = { ...this.avatar, mood, voice: "agent" }
 
         this.changed()
     }
@@ -438,7 +438,7 @@ export default class Board {
     }
 
     // An automatic mood and line; with settle, it goes back to what the terminal shows after a moment.
-    // A quiet one changes the mood without the character's voice. Settling back to rest is always quiet.
+    // A quiet one changes the mood silently; the others need the user and speak. Settling back is silent.
     private express(mood: string, line: string | undefined, settle: boolean, quiet = false) {
 
         if (Date.now() - this.agentTouchedAvatar < agentPrecedence) return
@@ -448,7 +448,7 @@ export default class Board {
         // A line the agent wrote stays; an automatic one is replaced or cleared.
         const say = this.avatar.say && !this.automatic.say ? this.avatar.say : line
 
-        this.avatar = { ...this.avatar, mood, say, quiet: quiet || undefined }
+        this.avatar = { ...this.avatar, mood, say, voice: quiet ? undefined : "attention" }
 
         this.automatic = { mood: true, say: !!line && say === line }
 
@@ -458,7 +458,7 @@ export default class Board {
 
             if (!this.automatic.mood) return
 
-            this.avatar = { ...this.avatar, mood: this.terminal === "working" ? this.moodFor(["working"]) : "idle", say: this.automatic.say ? undefined : this.avatar.say, quiet: true }
+            this.avatar = { ...this.avatar, mood: this.terminal === "working" ? this.moodFor(["working"]) : "idle", say: this.automatic.say ? undefined : this.avatar.say, voice: undefined }
 
             this.automatic = { mood: true, say: false }
 

@@ -21,12 +21,15 @@ export function Avatar({ avatar, asking }: { avatar: AvatarState, asking: boolea
         last.current = now
 
         // A new character announces itself from the gallery; only mood changes speak here.
-        if (now === before || !before.startsWith(`${avatar.character}/`) || avatar.quiet) return
+        if (now === before || !before.startsWith(`${avatar.character}/`)) return
+
+        // The voice is for when the user is needed; the agent's own moods speak only if the user chose so.
+        if (avatar.voice !== "attention" && !(avatar.voice === "agent" && sound.moodVoices)) return
 
         const expression = findCharacter(avatar.character).moods.find(mood => mood.name === avatar.mood)?.expression
 
         if (expression) sound.voice(avatar.character, expression)
-    }, [avatar.character, avatar.mood, avatar.quiet])
+    }, [avatar.character, avatar.mood, avatar.voice])
 
     return (
         <div className={`avatar ${asking ? "asking" : ""}`} style={{ left: avatar.col * cellSize, top: avatar.row * cellSize, ...size }} data-avatar>

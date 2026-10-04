@@ -16,9 +16,21 @@ const listeners = new Set<() => void>()
 
 let enabled = readEnabled()
 
+// The user's choice (kept in settings): the character speaks on every mood the agent gives it.
+let moodVoices = false
+
 export const sound = {
 
     get enabled() { return enabled },
+
+    get moodVoices() { return moodVoices },
+
+    setMoodVoices(value: boolean) {
+
+        moodVoices = value
+
+        for (const listener of listeners) listener()
+    },
 
     setEnabled(value: boolean) {
 

@@ -8,10 +8,18 @@ import { sound } from "../sound"
 // Picking one closes the gallery.
 export function CharacterPicker({ current, onChosen }: { current: string, onChosen: () => void }) {
 
+    const [voiceMoods, setVoiceMoods] = useState(sound.moodVoices)
+
+    const toggleVoices = () => { const on = !voiceMoods; setVoiceMoods(on); sound.setMoodVoices(on); bridge.setVoiceMoods(on) }
+
     return (
         <div className="character-picker glass" role="dialog" aria-label="Choose a character">
             <h2>Character</h2>
             <p className="hint">Who your agent is on the board. The same in every project.</p>
+            <label className="picker-option">
+                <input type="checkbox" checked={voiceMoods} onChange={toggleVoices} />
+                <span>Speak on every mood <small>Off: the character speaks only when it needs you.</small></span>
+            </label>
             <div className="character-grid">
                 {characters.map(character => (
                     <button

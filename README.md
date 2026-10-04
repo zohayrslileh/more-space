@@ -66,8 +66,9 @@ The avatar also lives along by itself:
 
 - **Characters**: Mochi (the default, a plump pixel spirit), Chalky, Penguin, Owl, Robot, Cat, Cowboy,
   Samurai, Viking, Astronomer and Anime Hero. Each has its own moods (the agent reads them with `avatar info`), drawing and voice.
-- **Sound**: chalk on slate as it writes, a bell for questions, each character's own voice on a mood
-  change. One button turns it all off.
+- **Sound**: chalk on slate as it writes, a bell for questions. The character's own voice speaks only
+  when it needs you ("Done", "Your turn in the terminal"); "Speak on every mood", in the character
+  gallery, makes it speak on every mood the agent gives it too. One button turns all sound off.
 - **Handwriting**: six chalk-like fonts; Patrick Hand by default.
 
 ### When an agent says the command is not found

@@ -162,8 +162,10 @@ export interface Avatar extends Cell {
 
     say?: string
 
-    // The current mood came from something that should not make a sound (file changes, for now).
-    quiet?: boolean
+    // Why the current mood came, which decides whether the character speaks: "attention" when the user
+    // is needed ("Done", "Your turn"), "agent" when the agent posed it (spoken only if the user chose
+    // that), none for automatic moods that stay silent (working, file changes, settling back).
+    voice?: "attention" | "agent"
 }
 
 export interface Viewport {

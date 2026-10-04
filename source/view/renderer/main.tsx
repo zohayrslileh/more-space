@@ -15,6 +15,11 @@ import "@xterm/xterm/css/xterm.css"
 import { createRoot } from "react-dom/client"
 import { title } from "@/libs/identity"
 import App from "./app"
+import { bridge } from "./bridge"
+import { sound } from "./sound"
+
+// The user's voice choice, before the character first speaks.
+bridge.voiceMoods().then(sound.setMoodVoices)
 
 document.documentElement.dataset.platform = navigator.userAgent.includes("Windows") ? "windows" : navigator.userAgent.includes("Mac") ? "mac" : "linux"
 

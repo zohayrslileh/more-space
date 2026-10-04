@@ -13,6 +13,9 @@ export interface Settings {
 
     // Project folders opened before, most recent first.
     recentProjects: string[]
+
+    // The character speaks on every mood the agent gives it, not only when the user is needed.
+    voiceMoods: boolean
 }
 
 const keptRecent = 8
@@ -32,7 +35,8 @@ export default class SettingsStore {
         return new SettingsStore(file, {
             character: findCharacter(saved.character).id ?? defaultCharacter,
             font: typeof saved.font === "string" && /^[a-z-]{1,40}$/.test(saved.font) ? saved.font : defaultFont,
-            recentProjects: Array.isArray(saved.recentProjects) ? saved.recentProjects.filter(path => typeof path === "string") : []
+            recentProjects: Array.isArray(saved.recentProjects) ? saved.recentProjects.filter(path => typeof path === "string") : [],
+            voiceMoods: saved.voiceMoods === true
         })
     }
 

@@ -17,6 +17,11 @@ export interface Bridge {
 
     chooseFont(id: string): Promise<void>
 
+    // Whether the character speaks on every mood the agent gives it (off: only when the user is needed).
+    voiceMoods(): Promise<boolean>
+
+    setVoiceMoods(on: boolean): Promise<void>
+
     // A folder picker, then the app restarts on the chosen project.
     chooseProject(): Promise<void>
 
@@ -85,6 +90,10 @@ export const channels = {
     font: "settings:font",
 
     chooseFont: "settings:choose-font",
+
+    voiceMoods: "settings:voice-moods",
+
+    setVoiceMoods: "settings:set-voice-moods",
 
     chooseProject: "project:choose",
 
