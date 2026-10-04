@@ -70,6 +70,15 @@ The avatar also lives along by itself:
   change. One button turns it all off.
 - **Handwriting**: six chalk-like fonts; Patrick Hand by default.
 
+### When an agent says the command is not found
+
+Some tools keep one background process alive and run commands through it: tmux, screen, or Codex's
+shared app-server. That process keeps the environment of the terminal it was first started from.
+If it was started outside More Space, it cannot see the command: restart it once from a More Space
+terminal (for Codex: `codex app-server daemon restart`, or run `codex --no-daemon`). Started from any
+More Space terminal, it keeps working afterwards, even across windows and restarts: the command
+lives in a fixed folder and finds the window open on the project it runs in.
+
 ## Your data
 
 Boards are kept per project folder in the app's own data folder (on macOS,

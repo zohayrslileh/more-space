@@ -19,5 +19,8 @@ const envPrefix = name.replace(/[^a-zA-Z0-9]+/g, "_").toUpperCase()
 
 export const env = {
 
-    socket: `${envPrefix}_SOCKET`
+    socket: `${envPrefix}_SOCKET`,
+
+    // Where open windows register themselves; set by the command script, not by terminals.
+    instances: `${envPrefix}_INSTANCES`
 }

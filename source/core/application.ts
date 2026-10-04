@@ -1,3 +1,4 @@
+import { register } from "@/libs/instances"
 import TerminalManager, { type TerminalEvents } from "./terminal/terminal-manager"
 import CommandServer from "./commands/command-server"
 import AssetStore from "./assets/asset-store"
@@ -5,7 +6,7 @@ import BoardStore from "./board/board-store"
 import Project from "./project/project"
 import SettingsStore from "./settings/settings-store"
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
-import { command, name } from "@/libs/identity"
+import { command, env, name } from "@/libs/identity"
 import { homedir, tmpdir } from "node:os"
 import { join, basename } from "node:path"
 import Board from "./board/board"
@@ -26,6 +27,10 @@ export interface ApplicationOptions {
 
     // The user's settings file (the app's data folder).
     settingsFile: string
+
+    // The app's data folder: the command lives in a fixed bin folder here, and open windows register
+    // here, so a process started from a terminal keeps finding both after that window is gone.
+    dataDirectory: string
 
     terminalEvents: TerminalEvents
 }
@@ -49,12 +54,14 @@ export default class Application {
 
         const runtimeDirectory = await mkdtemp(join(tmpdir(), `${name}-`))
 
-        const binDirectory = join(runtimeDirectory, "bin")
+        const binDirectory = join(options.dataDirectory, "bin")
+
+        const instancesDirectory = join(options.dataDirectory, "instances")
 
         // A Unix socket in the runtime folder; on Windows a named pipe, which lives in its own namespace.
         const socketPath = process.platform === "win32" ? `\\\\.\\pipe\\${basename(runtimeDirectory)}` : join(runtimeDirectory, "command.sock")
 
-        await writeCommand(binDirectory, options)
+        await writeCommand(binDirectory, options, instancesDirectory)
 
         const project = options.project ? await Project.open(options.project, options.boardsDirectory) : undefined
 
@@ -83,6 +90,8 @@ export default class Application {
 
         const commandServer = await CommandServer.listen(socketPath, board, assets)
 
+        const unregister = await register(instancesDirectory, { pid: process.pid, socket: socketPath, project: project?.path })
+
         const terminals = new TerminalManager(binDirectory, socketPath, project?.path ?? homedir(), options.terminalEvents)
 
         const application = new Application(project, board, assets, settings, terminals, commandServer, boardStore, runtimeDirectory)
@@ -90,10 +99,14 @@ export default class Application {
         // The avatar notices files changing on the branch while the agent works.
         application.stopWatching = project?.watchChanges(change => board.expressFiles(change)) ?? (() => { })
 
+        application.unregister = unregister
+
         return application
     }
 
     private stopWatching = () => { }
+
+    private unregister: () => Promise<void> = async () => { }
 
     public async chooseFont(id: string) {
 
@@ -115,6 +128,8 @@ export default class Application {
 
         this.stopWatching()
 
+        await this.unregister()
+
         this.terminals.closeAll()
 
         this.commandServer.close()
@@ -129,13 +144,13 @@ export default class Application {
 
 // The command exists only on the PATH of this instance's shells, never in the system.
 // On Windows it is a .cmd file, which PowerShell and cmd both run without an execution policy.
-export async function writeCommand(binDirectory: string, options: ApplicationOptions) {
+export async function writeCommand(binDirectory: string, options: Pick<ApplicationOptions, "runtime" | "cliScript">, instancesDirectory: string) {
 
     await mkdir(binDirectory, { recursive: true })
 
     if (process.platform === "win32") {
 
-        const script = ["@echo off", "setlocal", "set ELECTRON_RUN_AS_NODE=1", `"${options.runtime}" "${options.cliScript}" %*`, "exit /b %ERRORLEVEL%", ""].join("\r\n")
+        const script = ["@echo off", "setlocal", "set ELECTRON_RUN_AS_NODE=1", `set "${env.instances}=${instancesDirectory}"`, `"${options.runtime}" "${options.cliScript}" %*`, "exit /b %ERRORLEVEL%", ""].join("\r\n")
 
         return writeFile(join(binDirectory, `${command}.cmd`), script)
     }
@@ -144,7 +159,7 @@ export async function writeCommand(binDirectory: string, options: ApplicationOpt
 
     const script = [
         "#!/bin/sh",
-        `ELECTRON_RUN_AS_NODE=1 exec ${quote(options.runtime)} ${quote(options.cliScript)} "$@"`,
+        `ELECTRON_RUN_AS_NODE=1 ${env.instances}=${quote(instancesDirectory)} exec ${quote(options.runtime)} ${quote(options.cliScript)} "$@"`,
         ""
     ].join("\n")
 

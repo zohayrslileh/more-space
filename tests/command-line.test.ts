@@ -1,10 +1,11 @@
-import { writeCommand, type ApplicationOptions } from "@/core/application"
+import { writeCommand } from "@/core/application"
+import { register } from "@/libs/instances"
 import AssetStore from "@/core/assets/asset-store"
 import Board from "@/core/board/board"
 import CommandServer from "@/core/commands/command-server"
 import { command, env } from "@/libs/identity"
 import { expect, test } from "bun:test"
-import { mkdtempSync, rmSync } from "node:fs"
+import { mkdtempSync, realpathSync, rmSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { basename, delimiter, join } from "node:path"
 
@@ -23,7 +24,7 @@ test("the command an agent runs reaches the board and answers", async () => {
     const server = await CommandServer.listen(socket, board, new AssetStore(join(runtime, "assets")))
 
     // Bun stands in for Electron-as-Node here: it runs the client's source directly.
-    await writeCommand(join(runtime, "bin"), { runtime: process.execPath, cliScript: join(import.meta.dir, "..", "source", "cli", "cli.ts") } as ApplicationOptions)
+    await writeCommand(join(runtime, "bin"), { runtime: process.execPath, cliScript: join(import.meta.dir, "..", "source", "cli", "cli.ts") }, join(runtime, "instances"))
 
     // Windows spells it Path: prepend under the existing spelling, as the terminals do.
     const pathKey = Object.keys(process.env).find(key => key.toUpperCase() === "PATH") ?? "PATH"
@@ -35,7 +36,7 @@ test("the command an agent runs reaches the board and answers", async () => {
     const run = async (line: string) => {
 
         // powershell -Command turns any failing exit into 1; $LASTEXITCODE holds what the command returned.
-        const child = Bun.spawn([...shell, windows ? `${line}; exit $LASTEXITCODE` : line], { env: environment, stdout: "pipe", stderr: "pipe" })
+        const child = Bun.spawn([...shell, windows ? `${line}; exit $LASTEXITCODE` : line], { env: environment, cwd: runtime, stdout: "pipe", stderr: "pipe" })
 
         const [code, out, error] = await Promise.all([child.exited, new Response(child.stdout).text(), new Response(child.stderr).text()])
 
@@ -57,6 +58,25 @@ test("the command an agent runs reaches the board and answers", async () => {
     expect(board.state().avatar.say).toBe("Hi")
 
     expect((await run(`${command} board nope`)).code).toBe(2)
+
+    // A stale environment (a long-lived process from a terminal that is gone): the command finds the
+    // open window registered for the project it runs in.
+    const stale = windows ? `\\\\.\\pipe\\gone-${basename(runtime)}` : join(runtime, "gone.sock")
+
+    // Another open window on another project is there too, so only matching the project picks ours.
+    await register(join(runtime, "instances"), { pid: process.ppid, socket: stale, project: tmpdir() + "-elsewhere" })
+
+    const unregister = await register(join(runtime, "instances"), { pid: process.pid, socket, project: realpathSync(runtime) })
+
+    environment[env.socket] = stale
+
+    expect((await run(`${command} avatar say Found`)).code).toBe(0)
+
+    expect(board.state().avatar.say).toBe("Found")
+
+    await unregister()
+
+    expect((await run(`${command} avatar say Lost`)).code).toBe(1)
 
     server.close()
 

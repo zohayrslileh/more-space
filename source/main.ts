@@ -35,6 +35,7 @@ async function start() {
         cliScript: join(distDirectory, "cli.js").replace(`app.asar${sep}`, `app.asar.unpacked${sep}`),
         project,
         boardsDirectory: join(app.getPath("userData"), "boards"),
+        dataDirectory: app.getPath("userData"),
         settingsFile: join(app.getPath("userData"), "settings.json"),
         terminalEvents: {
             data: (id, data) => send(channels.terminalData, id, data),
