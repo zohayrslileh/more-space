@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs"
 import type { TerminalOptions } from "@/core/terminal/terminal-manager"
 import type { Size, Viewport } from "@/core/board/board-types"
 import { app, BrowserWindow, clipboard, ipcMain } from "electron"
@@ -6,6 +7,9 @@ import { channels, type ProjectInfo } from "./bridge-types"
 import { title } from "@/libs/identity"
 import { homedir } from "node:os"
 import { basename, join } from "node:path"
+
+// Recent projects on the chooser.
+const shownRecent = 3
 
 export interface ProjectActions {
 
@@ -72,9 +76,13 @@ export function openWindow(application: Application, distDirectory: string, proj
 
     const home = (path: string) => path.startsWith(homedir()) ? `~${path.slice(homedir().length)}` : path
 
+    // The last few folders that still exist, each path cut to its end when long.
+    const short = (path: string) => { const label = home(path); return label.length <= 40 ? label : `…/${label.split("/").slice(-2).join("/")}` }
+
     const recent = application.settings.get().recentProjects
-        .filter(path => path !== project?.path)
-        .map(path => ({ path, label: home(path), name: basename(path) }))
+        .filter(path => path !== project?.path && existsSync(path))
+        .slice(0, shownRecent)
+        .map(path => ({ path, label: short(path), name: basename(path) }))
 
     const info: ProjectInfo = { open: !!project, project: project?.name ?? "", path: project ? home(project.path) : "", recent }
 

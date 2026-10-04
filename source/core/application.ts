@@ -8,7 +8,7 @@ import SettingsStore from "./settings/settings-store"
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
 import { command, env, name } from "@/libs/identity"
 import { homedir, tmpdir } from "node:os"
-import { join, basename } from "node:path"
+import { join, basename, sep } from "node:path"
 import Board from "./board/board"
 
 export interface ApplicationOptions {
@@ -71,7 +71,8 @@ export default class Application {
 
         board.setCharacter(settings.get().character)
 
-        if (project) await settings.rememberProject(project.path)
+        // Temporary folders are not projects to come back to.
+        if (project && !temporary(project.path)) await settings.rememberProject(project.path)
 
         const assets = new AssetStore(join(project?.boardDirectory ?? runtimeDirectory, "assets"))
 
@@ -164,4 +165,11 @@ export async function writeCommand(binDirectory: string, options: Pick<Applicati
     ].join("\n")
 
     await writeFile(join(binDirectory, command), script, { mode: 0o755 })
+}
+
+function temporary(path: string) {
+
+    const roots = [tmpdir(), "/tmp", "/private/tmp", "/var/folders", "/private/var/folders"]
+
+    return roots.some(root => path === root || path.startsWith(root.endsWith(sep) ? root : root + sep))
 }

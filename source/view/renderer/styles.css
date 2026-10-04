@@ -249,8 +249,9 @@ button:focus-visible { outline: 2px solid var(--chalk-yellow); outline-offset: 1
 .onboard.centered .onboard-note { font-size: 28px; }
 .onboard-recent { display: grid; gap: 4px; justify-items: center; margin-top: 16px; }
 .onboard-label { font: 500 25px/1 var(--f-chalk); color: var(--chalk-blue); margin-bottom: 4px; }
-.onboard-link { display: flex; align-items: baseline; gap: 16px; font: 500 33px/1.3 var(--f-chalk) !important; }
-.onboard-link .path { font-size: 23px; opacity: .55; }
+.onboard-link { display: flex; align-items: baseline; gap: 12px; max-width: 100%; font: 500 27px/1.3 var(--f-chalk) !important; }
+.onboard-link .name { flex: none; }
+.onboard-link .path { font-size: 19px; opacity: .5; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 360px; }
 .onboard-link:hover .name { color: var(--chalk-yellow); }
 .onboard .option.onboard-copy {
     font: 500 34px/1 var(--f-chalk); padding: 14px 28px; color: var(--chalk-orange);
