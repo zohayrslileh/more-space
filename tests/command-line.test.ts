@@ -25,7 +25,10 @@ test("the command an agent runs reaches the board and answers", async () => {
     // Bun stands in for Electron-as-Node here: it runs the client's source directly.
     await writeCommand(join(runtime, "bin"), { runtime: process.execPath, cliScript: join(import.meta.dir, "..", "source", "cli", "cli.ts") } as ApplicationOptions)
 
-    const environment = { ...process.env, [env.socket]: socket, PATH: [join(runtime, "bin"), process.env.PATH ?? process.env.Path].join(delimiter) }
+    // Windows spells it Path: prepend under the existing spelling, as the terminals do.
+    const pathKey = Object.keys(process.env).find(key => key.toUpperCase() === "PATH") ?? "PATH"
+
+    const environment = { ...process.env, [env.socket]: socket, [pathKey]: [join(runtime, "bin"), process.env[pathKey]].join(delimiter) }
 
     const shell = windows ? ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"] : ["sh", "-c"]
 
@@ -33,7 +36,11 @@ test("the command an agent runs reaches the board and answers", async () => {
 
         const child = Bun.spawn([...shell, line], { env: environment, stdout: "pipe", stderr: "pipe" })
 
-        return { code: await child.exited, out: await new Response(child.stdout).text() }
+        const [code, out, error] = await Promise.all([child.exited, new Response(child.stdout).text(), new Response(child.stderr).text()])
+
+        if (code !== 0) console.error(`exit ${code} for: ${line}\n${out}${error}`)
+
+        return { code, out }
     }
 
     const written = await run(`${command} board write 0,0 "Hello from the shell"`)
