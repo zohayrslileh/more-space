@@ -28,7 +28,7 @@ await build({
         mac: {
             category: "public.app-category.developer-tools",
             icon: "assets/icon/icon.icns",
-            target: quick ? [{ target: "dir", arch: [process.arch as "arm64" | "x64"] }] : [{ target: "dmg", arch: ["arm64", "x64"] }, { target: "zip", arch: ["arm64", "x64"] }],
+            target: quick ? [{ target: "dir", arch: [process.arch as "arm64" | "x64"] }] : [{ target: "dmg", arch: ["arm64", "x64"] }],
             // No Developer ID yet: an ad-hoc signature. Apple silicon refuses an unsigned download as
             // "damaged"; ad-hoc signed, it is only "unidentified", which right-click → Open gets past.
             identity: "-",

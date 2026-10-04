@@ -40,5 +40,5 @@ macOS, Windows and Linux.
    ```sh
    git tag v0.2.0 && git push origin v0.2.0
    ```
-3. The release workflow builds macOS (`.dmg`, `.zip`, Apple silicon and Intel), Windows (`Setup .exe`,
+3. The release workflow builds macOS (`.dmg`, Apple silicon and Intel), Windows (`Setup .exe`,
    `.zip`) and Linux (`.AppImage`, `.deb`) and attaches them to a **draft** release. Review it on GitHub and publish.
