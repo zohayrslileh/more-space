@@ -70,9 +70,11 @@ describe("board", () => {
         expect(board.answer(choice.id, ["A"])).toBe(false)
     })
 
-    test("the avatar shows terminal activity, but the agent's own posing comes first", () => {
+    test("the avatar shows terminal activity, but the agent's own posing comes first", async () => {
 
         const board = new Board()
+
+        board.timing = { doneAfter: 60, minWork: 40 }
 
         board.setCharacter("chalky")
 
@@ -80,7 +82,14 @@ describe("board", () => {
 
         expect(board.state().avatar.mood).toBe("working")
 
+        await Bun.sleep(50)
+
         board.expressActivity("idle")
+
+        // Through the gap it still looks busy; "Done" comes only once the quiet lasts.
+        expect(board.state().avatar.mood).toBe("working")
+
+        await Bun.sleep(90)
 
         expect(board.state().avatar.say).toBe("Done")
 
@@ -89,6 +98,30 @@ describe("board", () => {
         board.expressActivity("attention")
 
         expect(board.state().avatar.mood).toBe("thinking")
+    })
+
+    test("a pause shorter than the gap is not Done, and short work never is", async () => {
+
+        const board = new Board()
+
+        board.timing = { doneAfter: 60, minWork: 1000 }
+
+        board.expressActivity("working")
+
+        board.expressActivity("idle")
+
+        await Bun.sleep(20)
+
+        // Output again within the gap: the same work goes on.
+        board.expressActivity("working")
+
+        board.expressActivity("idle")
+
+        await Bun.sleep(90)
+
+        expect(board.state().avatar.say).toBeUndefined()
+
+        expect(board.state().avatar.mood).toBe("idle")
     })
 
     test("switching character keeps a mood it has, and falls back to idle otherwise", () => {

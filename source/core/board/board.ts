@@ -45,6 +45,14 @@ export default class Board {
     // What the terminal last seemed to be doing; a reaction settles back to it.
     private terminal: Activity = "idle"
 
+    // "Done" waits for the terminal to stay quiet this long (agents pause between steps all the time),
+    // and only follows work that lasted at least minWork. Tests shorten these.
+    public timing = { doneAfter: 10_000, minWork: 5000 }
+
+    private workStarted = 0
+
+    private doneTimer: ReturnType<typeof setTimeout> | undefined
+
     private avatar: Avatar = { col: 10, row: 4, mood: "idle", character: defaultCharacter }
 
     private viewport: Viewport = { col: 0, row: 0, cols: 13, rows: 7 }
@@ -355,19 +363,47 @@ export default class Board {
 
     // The avatar shows what the terminal shows: working, done, or waiting for the user. It uses the
     // current character's own moods (by expression), and yields while the agent is posing it itself.
+    // Only the moments that matter speak ("Done", "Your turn"); working stays quiet.
     public expressActivity(activity: Activity) {
 
         const was = this.terminal
 
         this.terminal = activity
 
-        const line = activity === "attention" ? "Your turn in the terminal" : activity === "idle" && was === "working" ? "Done" : undefined
+        const pausing = !!this.doneTimer
 
-        const mood = activity === "working" ? this.moodFor(["working"]) : activity === "attention" ? this.moodFor(["alert", "surprised", "confused"]) : line ? this.moodFor(["happy", "calm"]) : "idle"
+        clearTimeout(this.doneTimer)
 
-        // Only the moments that matter speak ("Done", "Your turn"); working, which comes and goes with
-        // every burst of output, stays quiet. "Done" settles back to rest after a moment.
-        this.express(mood, line, activity === "idle" && !!line, !line)
+        this.doneTimer = undefined
+
+        if (activity === "working") {
+
+            // Output again within the gap: the same piece of work goes on.
+            if (!pausing) this.workStarted = Date.now()
+
+            return this.express(this.moodFor(["working"]), undefined, false, true)
+        }
+
+        if (activity === "attention") return this.express(this.moodFor(["alert", "surprised", "confused"]), "Your turn in the terminal", false, false)
+
+        // Quiet after work: keep looking busy through the gap, then say "Done" if it was real work.
+        if (was === "working") {
+
+            const worked = Date.now() - this.workStarted
+
+            this.doneTimer = setTimeout(() => {
+
+                this.doneTimer = undefined
+
+                if (worked >= this.timing.minWork) this.express(this.moodFor(["happy", "calm"]), "Done", true, false)
+
+                else this.express("idle", undefined, false, true)
+            }, this.timing.doneAfter)
+
+            return
+        }
+
+        this.express("idle", undefined, false, true)
     }
 
     // The avatar notices files changing on the branch: edits, new and deleted files, undone edits, commits.

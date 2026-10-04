@@ -66,9 +66,11 @@ describe("working tree", () => {
         rmSync(root, { recursive: true, force: true })
     }, 10_000)
 
-    test("the terminal speaks only for the moments that matter", () => {
+    test("the terminal speaks only for the moments that matter", async () => {
 
         const board = new Board()
+
+        board.timing = { doneAfter: 30, minWork: 0 }
 
         board.expressFiles({ changed: [{ path: "a.ts", kind: "modified" }], reverted: [] })
 
@@ -77,6 +79,8 @@ describe("working tree", () => {
         expect(board.state().avatar.quiet).toBe(true)
 
         board.expressActivity("idle")
+
+        await Bun.sleep(60)
 
         expect(board.state().avatar).toMatchObject({ say: "Done", quiet: undefined })
 
