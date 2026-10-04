@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2
+
+- The project chooser lists only the last three projects that still exist, with short one-line
+  paths. Temporary folders are no longer remembered.
+- macOS downloads are a single `.dmg` per processor.
+
 ## 0.1.1
 
 - macOS builds are signed ad hoc. The 0.1.0 download was refused as "damaged" on Apple silicon;

@@ -1,6 +1,6 @@
 {
     "name": "more-space",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "A chalkboard and an avatar for any terminal agent: it shows its plan, its progress and its questions while it works.",
     "license": "MIT",
     "author": "zohayrslileh",
