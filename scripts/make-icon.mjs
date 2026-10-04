@@ -1,7 +1,8 @@
 // Renders assets/icon/icon.svg with Chromium (so the chalk filters look exactly as designed) into
-// assets/icon/icon.png (1024) and, on macOS, assets/icon/icon.icns. Run: bun run icon
+// assets/icon/icon.png (1024), assets/icon/icon.ico (Windows) and assets/icon/icon.icns (macOS only:
+// it needs iconutil). Run: bun run icon
 // To preview another SVG without touching the icon: electron scripts/make-icon.mjs <in.svg> <out.png>
-import { app, BrowserWindow } from "electron"
+import { app, BrowserWindow, nativeImage } from "electron"
 import { execFileSync } from "node:child_process"
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { join } from "node:path"
@@ -36,6 +37,35 @@ app.whenReady().then(async () => {
     writeFileSync(png, Buffer.from(base64, "base64"))
 
     if (preview) { app.quit(); return }
+
+    const image = base64 => nativeImage.createFromBuffer(Buffer.from(base64, "base64"))
+
+    // Windows: an .ico holding PNG images of the sizes it asks for, written directly, so packaging
+    // never has to convert it.
+    const sizes = [16, 24, 32, 48, 64, 128, 256]
+
+    const images = sizes.map(size => image(base64).resize({ width: size, height: size, quality: "best" }).toPNG())
+
+    const header = Buffer.alloc(6 + 16 * sizes.length)
+
+    header.writeUInt16LE(0, 0); header.writeUInt16LE(1, 2); header.writeUInt16LE(sizes.length, 4)
+
+    let offset = header.length
+
+    sizes.forEach((size, index) => {
+
+        const entry = 6 + 16 * index
+
+        header.writeUInt8(size % 256, entry); header.writeUInt8(size % 256, entry + 1)
+
+        header.writeUInt16LE(1, entry + 4); header.writeUInt16LE(32, entry + 6)
+
+        header.writeUInt32LE(images[index].length, entry + 8); header.writeUInt32LE(offset, entry + 12)
+
+        offset += images[index].length
+    })
+
+    writeFileSync(join(folder, "icon.ico"), Buffer.concat([header, ...images]))
 
     if (process.platform === "darwin") {
 

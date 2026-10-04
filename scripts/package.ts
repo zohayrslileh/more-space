@@ -41,7 +41,8 @@ await build({
             executableName: name
         },
         win: {
-            icon: "assets/icon/icon.png",
+            // Ready-made (bun run icon): converting at packaging time hung on Windows.
+            icon: "assets/icon/icon.ico",
             target: quick ? ["dir"] : [{ target: "nsis", arch: ["x64"] }, { target: "zip", arch: ["x64"] }],
             // Not signed with a code-signing certificate yet; see README ("Unsigned builds").
             signAndEditExecutable: false

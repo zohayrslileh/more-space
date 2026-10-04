@@ -12,6 +12,7 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2

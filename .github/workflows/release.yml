@@ -19,6 +19,8 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    # Each build takes a few minutes; anything longer is stuck.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
