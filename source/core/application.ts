@@ -7,7 +7,7 @@ import SettingsStore from "./settings/settings-store"
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
 import { command, name } from "@/libs/identity"
 import { homedir, tmpdir } from "node:os"
-import { join } from "node:path"
+import { join, basename } from "node:path"
 import Board from "./board/board"
 
 export interface ApplicationOptions {
@@ -51,7 +51,8 @@ export default class Application {
 
         const binDirectory = join(runtimeDirectory, "bin")
 
-        const socketPath = join(runtimeDirectory, "command.sock")
+        // A Unix socket in the runtime folder; on Windows a named pipe, which lives in its own namespace.
+        const socketPath = process.platform === "win32" ? `\\\\.\\pipe\\${basename(runtimeDirectory)}` : join(runtimeDirectory, "command.sock")
 
         await writeCommand(binDirectory, options)
 
@@ -127,7 +128,17 @@ export default class Application {
 }
 
 // The command exists only on the PATH of this instance's shells, never in the system.
-async function writeCommand(binDirectory: string, options: ApplicationOptions) {
+// On Windows it is a .cmd file, which PowerShell and cmd both run without an execution policy.
+export async function writeCommand(binDirectory: string, options: ApplicationOptions) {
+
+    await mkdir(binDirectory, { recursive: true })
+
+    if (process.platform === "win32") {
+
+        const script = ["@echo off", "setlocal", "set ELECTRON_RUN_AS_NODE=1", `"${options.runtime}" "${options.cliScript}" %*`, "exit /b %ERRORLEVEL%", ""].join("\r\n")
+
+        return writeFile(join(binDirectory, `${command}.cmd`), script)
+    }
 
     const quote = (value: string) => `'${value.replace(/'/g, `'\\''`)}'`
 
@@ -136,8 +147,6 @@ async function writeCommand(binDirectory: string, options: ApplicationOptions) {
         `ELECTRON_RUN_AS_NODE=1 exec ${quote(options.runtime)} ${quote(options.cliScript)} "$@"`,
         ""
     ].join("\n")
-
-    await mkdir(binDirectory, { recursive: true })
 
     await writeFile(join(binDirectory, command), script, { mode: 0o755 })
 }

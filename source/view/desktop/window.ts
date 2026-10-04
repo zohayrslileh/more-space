@@ -26,8 +26,10 @@ export function openWindow(application: Application, distDirectory: string, proj
         show: false,
         backgroundColor: "#161817",
         icon: join(distDirectory, "icon.png"),
-        titleBarStyle: "hiddenInset",
-        trafficLightPosition: { x: 12, y: 11 },
+        // macOS: traffic lights inset in the title bar. Windows: its own controls drawn over the bar's right end.
+        ...(process.platform === "win32"
+            ? { titleBarStyle: "hidden" as const, titleBarOverlay: { color: "#171a19", symbolColor: "#d9ddd9", height: 34 } }
+            : { titleBarStyle: "hiddenInset" as const, trafficLightPosition: { x: 12, y: 11 } }),
         webPreferences: {
             preload: join(distDirectory, "preload.cjs"),
             contextIsolation: true,

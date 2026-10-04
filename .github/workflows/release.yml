@@ -2,9 +2,12 @@ name: Release
 
 # Push a tag like v0.2.0 (matching "version" in package.json) to build and attach installers to a
 # draft release. Review the draft on GitHub, then publish it.
+# Run it by hand (Actions → Release → Run workflow) to build the installers without releasing:
+# they are attached to the run as downloadable artifacts.
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,16 +17,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
       - name: Tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
         run: test "${GITHUB_REF_NAME#v}" = "$(bun -e 'console.log(require("./package.json").version)')"
       - run: bun install --frozen-lockfile
       - run: bun run typecheck
       - run: bun test
-      - run: bun run release
+      - name: Build and attach to the draft release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: bun run release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build only
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        run: bun run package
+      - uses: actions/upload-artifact@v4
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        with:
+          name: installers-${{ matrix.os }}
+          path: |
+            release/*.dmg
+            release/*.zip
+            release/*.exe
+            release/*.AppImage
+            release/*.deb
+          if-no-files-found: error

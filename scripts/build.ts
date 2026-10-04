@@ -1,9 +1,11 @@
 import { copyFile, rm } from "node:fs/promises"
+import { fileURLToPath } from "node:url"
 
 // Builds the three programs the app is made of into dist/:
 // the Electron main process, the window preload, the in-terminal command, and the window page.
 
-const root = new URL("..", import.meta.url).pathname
+// With its trailing separator; fileURLToPath also gives a real path on Windows.
+const root = fileURLToPath(new URL("..", import.meta.url))
 
 const dist = `${root}dist`
 

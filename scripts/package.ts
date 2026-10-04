@@ -40,6 +40,13 @@ await build({
             // A lowercase command name on Linux; macOS keeps the product name for the app bundle.
             executableName: name
         },
+        win: {
+            icon: "assets/icon/icon.png",
+            target: quick ? ["dir"] : [{ target: "nsis", arch: ["x64"] }, { target: "zip", arch: ["x64"] }],
+            // Not signed with a code-signing certificate yet; see README ("Unsigned builds").
+            signAndEditExecutable: false
+        },
+        nsis: { oneClick: false, allowToChangeInstallationDirectory: true, artifactName: "${productName}-Setup-${version}.${ext}" },
         publish: { provider: "github", owner, repo, releaseType: "draft" }
     }
 })

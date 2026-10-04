@@ -1,5 +1,6 @@
 import { spawn, type IPty } from "node-pty"
-import { delimiter } from "node:path"
+import { delimiter, join } from "node:path"
+import { existsSync } from "node:fs"
 import ActivityTracker, { type Activity } from "./activity"
 import { env } from "@/libs/identity"
 
@@ -41,9 +42,9 @@ export default class TerminalManager {
 
         const id = `term-${++this.counter}`
 
-        const shell = process.env.SHELL || "/bin/zsh"
+        const [shell, args] = process.platform === "win32" ? [powershell(), ["-NoLogo"]] : [process.env.SHELL || "/bin/zsh", ["-l"]]
 
-        const terminal = spawn(shell, ["-l"], {
+        const terminal = spawn(shell, args, {
             name: "xterm-256color",
             cols: options.cols,
             rows: options.rows,
@@ -116,10 +117,21 @@ export default class TerminalManager {
 
         environment.COLORTERM = "truecolor"
 
-        environment.PATH = [this.binDirectory, environment.PATH].filter(Boolean).join(delimiter)
+        // Windows spells it Path; keep its own spelling so there is only one.
+        const path = Object.keys(environment).find(key => key.toUpperCase() === "PATH") ?? "PATH"
+
+        environment[path] = [this.binDirectory, environment[path]].filter(Boolean).join(delimiter)
 
         environment[env.socket] = this.socketPath
 
         return environment
     }
+}
+
+// PowerShell 7 when it is installed, otherwise the Windows PowerShell every Windows has.
+function powershell() {
+
+    const path = Object.entries(process.env).find(([key]) => key.toUpperCase() === "PATH")?.[1] ?? ""
+
+    return path.split(delimiter).some(folder => folder && existsSync(join(folder, "pwsh.exe"))) ? "pwsh.exe" : "powershell.exe"
 }

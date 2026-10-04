@@ -1,4 +1,5 @@
 import { avatarSpan, cellSize, linkStyles, markKinds, pinnedKinds, textSizes, type AskItem, type AskMode, type Item, type Link, type Mark, type StepState } from "@/core/board/board-types"
+import { batchExample } from "./batch"
 import AssetStore, { AssetError } from "@/core/assets/asset-store"
 import { findCharacter } from "@/core/avatar/characters"
 import { describeColors, isCell, parseCell, parseChoice, parseColor, parseNumber, UsageError, type Arguments } from "./arguments"
@@ -120,11 +121,7 @@ Kept    The board is kept for this project folder and comes back next time it is
 Erase   Erased writing scatters and leaves a faint trace that stays, like a real board.
         "board wash" cleans the traces away when a fresh, clean board matters.
 Batch   Send several commands in one call, one per line, without the "${command}" word:
-          ${command} - <<'EOF'
-          board write 0,0 --size l --color focus "Refactor auth"
-          avatar move 10,4
-          avatar mood thinking
-          EOF
+${batchExample(["board write 0,0 --size l --color focus \"Refactor auth\"", "avatar move 10,4", "avatar mood thinking"], "          ")}
 
 Start   "${command} board info", then write a title and your plan where the user is looking.`
 

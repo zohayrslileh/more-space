@@ -10,7 +10,7 @@ bun start
 ```
 
 Before opening a pull request, run `bun run check` (typecheck, tests, build). CI runs the same on
-macOS and Linux.
+macOS, Windows and Linux.
 
 ## A few rules the code follows
 
@@ -40,5 +40,5 @@ macOS and Linux.
    ```sh
    git tag v0.2.0 && git push origin v0.2.0
    ```
-3. The release workflow builds macOS (`.dmg`, `.zip`, Apple silicon and Intel) and Linux (`.AppImage`,
-   `.deb`) and attaches them to a **draft** release. Review it on GitHub and publish.
+3. The release workflow builds macOS (`.dmg`, `.zip`, Apple silicon and Intel), Windows (`Setup .exe`,
+   `.zip`) and Linux (`.AppImage`, `.deb`) and attaches them to a **draft** release. Review it on GitHub and publish.

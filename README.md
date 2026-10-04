@@ -25,19 +25,18 @@ Nothing is installed in your system, and nothing is written into your project.
 ## Getting started
 
 1. Download the app for your system from [Releases](https://github.com/zohayrslileh/more-space/releases)
-   (macOS: `.dmg` for Apple silicon or Intel; Linux: `.AppImage` or `.deb`).
+   (macOS: `.dmg` for Apple silicon or Intel; Windows: the `Setup` `.exe`; Linux: `.AppImage` or `.deb`).
 2. Open it and choose a project folder.
 3. The empty board shows a short instruction with a **Copy** button. Paste it to your agent in the
    terminal below; it will start by learning the board.
 
 ### Unsigned builds
 
-Builds are not signed with an Apple Developer ID yet. The first time on macOS, right-click the app and
-choose **Open**, or run:
+Builds are not signed yet. The first time:
 
-```sh
-xattr -dr com.apple.quarantine "/Applications/More Space.app"
-```
+- **macOS**: right-click the app and choose **Open**, or run
+  `xattr -dr com.apple.quarantine "/Applications/More Space.app"`.
+- **Windows**: SmartScreen may warn about an unknown publisher; choose **More info**, then **Run anyway**.
 
 ## What the agent can do
 
@@ -51,7 +50,8 @@ Everything starts from the command with no arguments; each level explains the ne
 | `ask` | a question with one choice, `--multi`, `--other`, `--text` or `--scale N`; `ask wait <id>` |
 | `view` | `fit` (the whole board, kept in view), `show` (frame items or cells), `auto on\|off` |
 
-Several commands can go in one call: `more-space - <<'EOF'` with one command per line.
+Several commands can go in one call, one per line: `more-space - <<'EOF'` … `EOF` in a Unix shell,
+or `@'` … `'@ | more-space -` in PowerShell.
 Every write answers with the cells it really covers, and warns when it lands on something else.
 
 The avatar also lives along by itself:
@@ -78,8 +78,9 @@ there. Nothing leaves your computer, except an image the agent pins from a URL, 
 
 ## Platforms
 
-macOS and Linux. Windows is not supported yet: the in-terminal command relies on Unix sockets and
-shell scripts.
+macOS, Windows and Linux. The terminal runs your login shell on macOS and Linux, and PowerShell on
+Windows (PowerShell 7 when installed, otherwise Windows PowerShell). Git must be installed for the
+branch in the title and for the avatar's reactions to file changes.
 
 ## Development
 

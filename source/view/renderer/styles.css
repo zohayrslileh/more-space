@@ -65,6 +65,9 @@ button:focus-visible { outline: 2px solid var(--chalk-yellow); outline-offset: 1
     min-width: 0;
 }
 
+/* Windows draws its window controls over the right end of the bar. */
+:root[data-platform="windows"] .titlebar { padding: 0 150px 0 12px; }
+
 .titlebar .title {
     flex: 1; min-width: 0; padding-right: 72px;
     display: flex; align-items: center; justify-content: center;

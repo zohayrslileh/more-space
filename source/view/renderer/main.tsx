@@ -16,6 +16,8 @@ import { createRoot } from "react-dom/client"
 import { title } from "@/libs/identity"
 import App from "./app"
 
+document.documentElement.dataset.platform = navigator.userAgent.includes("Windows") ? "windows" : navigator.userAgent.includes("Mac") ? "mac" : "linux"
+
 document.title = title
 
 createRoot(document.getElementById("root")!).render(<App />)

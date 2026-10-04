@@ -1,3 +1,4 @@
+import { batchUsage } from "./batch"
 import { root, type CommandContext, type CommandNode } from "./command-tree"
 import { parseArguments, tokenize, UsageError } from "./arguments"
 import { command } from "@/libs/identity"
@@ -59,7 +60,7 @@ async function batch(context: CommandContext, input: string[]) {
 
     const lines = (input[0] ?? "").split("\n").map(line => line.trim()).filter(line => line && !line.startsWith("#"))
 
-    if (!lines.length) throw new UsageError(`Nothing to run. Use: ${command} - <<'EOF' ... EOF`)
+    if (!lines.length) throw new UsageError(`Nothing to run. Use: ${batchUsage}`)
 
     let failed = 0
 
@@ -136,5 +137,5 @@ function everything() {
 
     walk(root, [])
 
-    return [`${command}: ${root.summary}. Every command:`, table(rows), `Batch: ${command} - <<'EOF' (one command per line) EOF`].join("\n")
+    return [`${command}: ${root.summary}. Every command:`, table(rows), `Batch: ${batchUsage} (one command per line)`].join("\n")
 }
