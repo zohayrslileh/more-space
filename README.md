@@ -22,6 +22,8 @@ there that lets it:
 The command exists only inside the app's terminals and talks only to the window that opened them.
 Nothing is installed in your system, and nothing is written into your project.
 
+https://github.com/user-attachments/assets/36bce0e3-f336-479c-83f5-6182043d699f
+
 ## Getting started
 
 1. Download the app for your system from [Releases](https://github.com/zohayrslileh/more-space/releases)
