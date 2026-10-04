@@ -1,12 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <!-- The app's icon: a point circled in chalk on a slate, over the faint trace of erased writing.
-       The one source for every icon file (see scripts/make-icon.mjs). -->
+  <!-- The app's icon: Mochi, the default character, peeking up from the bottom of the slate at a chalk
+       star it just drew. The one source for every icon file (see scripts/make-icon.mjs). -->
   <defs>
     <filter id="chalk" x="-10%" y="-10%" width="120%" height="120%">
       <feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="3" result="n"/>
       <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G" result="r"/>
       <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.2 0 0 0 1.75" result="m"/>
       <feComposite in="r" in2="m" operator="in"/>
+    </filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="5" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1.3 0 0 0 1.25" result="m"/>
+      <feComposite in="SourceGraphic" in2="m" operator="in"/>
     </filter>
     <filter id="dust" x="0" y="0" width="100%" height="100%">
       <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="g"/>
@@ -15,19 +20,10 @@
     <radialGradient id="haze" cx="35%" cy="30%" r="80%">
       <stop offset="0" stop-color="#2a2e2c"/><stop offset=".6" stop-color="#1a1d1c"/><stop offset="1" stop-color="#121413"/>
     </radialGradient>
-    <!-- macOS icons sit inside a margin; the slate is the rounded square within it -->
     <clipPath id="slate"><rect x="100" y="100" width="824" height="824" rx="185"/></clipPath>
   </defs>
   <g clip-path="url(#slate)">
     <rect x="100" y="100" width="824" height="824" fill="url(#haze)"/>
     <rect x="100" y="100" width="824" height="824" filter="url(#dust)"/>
-    <g transform="translate(512 512) scale(1.13) translate(-518 -517)">
-      <g filter="url(#chalk)" fill="none" stroke-linecap="round">
-        <path d="M210 330 C330 316 470 340 600 322 M200 430 C360 414 520 440 760 420" stroke="#ecebe4" stroke-width="26" opacity=".14"/>
-        <path d="M520 278 C700 270 806 380 796 520 C786 676 660 760 512 756 C352 752 236 660 240 512 C244 372 360 282 552 296 C596 300 640 312 680 330" stroke="#f1d880" stroke-width="30"/>
-        <circle cx="512" cy="520" r="46" fill="#ecebe4" stroke="none"/>
-        <path d="M610 640 L700 700" stroke="#f3b47c" stroke-width="26"/>
-      </g>
-    </g>
-  </g>
+<g filter="url(#grain)" shape-rendering="crispEdges"><rect x="320.0" y="554.4" width="264.0" height="45.0" fill="#bba9ec"/><rect x="232.0" y="598.4" width="440.0" height="45.0" fill="#bba9ec"/><rect x="188.0" y="642.4" width="528.0" height="45.0" fill="#bba9ec"/><rect x="144.0" y="686.4" width="616.0" height="45.0" fill="#bba9ec"/><rect x="144.0" y="730.4" width="616.0" height="45.0" fill="#bba9ec"/><rect x="144.0" y="774.4" width="616.0" height="45.0" fill="#bba9ec"/><rect x="144.0" y="818.4" width="616.0" height="45.0" fill="#bba9ec"/><rect x="144.0" y="862.4" width="616.0" height="45.0" fill="#bba9ec"/><rect x="144.0" y="906.4" width="616.0" height="45.0" fill="#9a87d6"/><rect x="188.0" y="950.4" width="528.0" height="45.0" fill="#9a87d6"/><rect x="232.0" y="994.4" width="440.0" height="45.0" fill="#9a87d6"/><rect x="276.0" y="616.0" width="88.0" height="36.2" fill="#ddd2fa"/><rect x="232.0" y="651.2" width="44.0" height="36.2" fill="#ddd2fa"/><rect x="452.0" y="765.6" width="66.0" height="45.0" fill="#f0a5b6"/><rect x="680.8" y="765.6" width="66.0" height="45.0" fill="#f0a5b6"/><rect x="504.8" y="668.8" width="44.0" height="71.4" fill="#161817"/><rect x="645.6" y="668.8" width="44.0" height="71.4" fill="#161817"/></g><g filter="url(#chalk)" fill="none" stroke="#f1d880" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"><path d="M720 214 Q720 304 810 304 Q720 304 720 394 Q720 304 630 304 Q720 304 720 214 Z"/><path d="M590 200 v40 M570 220 h40" stroke-width="16"/></g>  </g>
 </svg>
