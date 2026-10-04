@@ -161,6 +161,9 @@ export interface Avatar extends Cell {
     character: string
 
     say?: string
+
+    // The current mood came from something that should not make a sound (file changes, for now).
+    quiet?: boolean
 }
 
 export interface Viewport {

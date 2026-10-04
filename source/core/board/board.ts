@@ -239,7 +239,7 @@ export default class Board {
 
         this.automatic.mood = false
 
-        this.avatar = { ...this.avatar, mood }
+        this.avatar = { ...this.avatar, mood, quiet: undefined }
 
         this.changed()
     }
@@ -388,7 +388,8 @@ export default class Board {
             : reverted.length ? [this.moodFor(["thinking", "neutral"]), reverted.length > 1 ? `Undid ${reverted.length} files` : `Undid ${clip(name(reverted[0]!), 24)}`]
             : ["idle", undefined]
 
-        this.express(mood, line, true)
+        // Silent for now: files change often, and the voice is for moments that matter.
+        this.express(mood, line, true, true)
     }
 
     // The character's first mood with one of these expressions.
@@ -400,7 +401,8 @@ export default class Board {
     }
 
     // An automatic mood and line; with settle, it goes back to what the terminal shows after a moment.
-    private express(mood: string, line: string | undefined, settle: boolean) {
+    // A quiet one changes the mood without the character's voice, and settles back quietly too.
+    private express(mood: string, line: string | undefined, settle: boolean, quiet = false) {
 
         if (Date.now() - this.agentTouchedAvatar < agentPrecedence) return
 
@@ -409,7 +411,7 @@ export default class Board {
         // A line the agent wrote stays; an automatic one is replaced or cleared.
         const say = this.avatar.say && !this.automatic.say ? this.avatar.say : line
 
-        this.avatar = { ...this.avatar, mood, say }
+        this.avatar = { ...this.avatar, mood, say, quiet: quiet || undefined }
 
         this.automatic = { mood: true, say: !!line && say === line }
 

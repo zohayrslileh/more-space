@@ -37,3 +37,4 @@
 - [x] App icon (direction C) and identity
 - [x] Packaging, CI and releases (unsigned)
 - [ ] Developer ID signing and notarization for macOS
+- [ ] Advanced settings: sound for file-change reactions (silent for now), and other per-signal options

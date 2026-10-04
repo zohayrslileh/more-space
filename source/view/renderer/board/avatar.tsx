@@ -21,12 +21,12 @@ export function Avatar({ avatar, asking }: { avatar: AvatarState, asking: boolea
         last.current = now
 
         // A new character announces itself from the gallery; only mood changes speak here.
-        if (now === before || !before.startsWith(`${avatar.character}/`)) return
+        if (now === before || !before.startsWith(`${avatar.character}/`) || avatar.quiet) return
 
         const expression = findCharacter(avatar.character).moods.find(mood => mood.name === avatar.mood)?.expression
 
         if (expression) sound.voice(avatar.character, expression)
-    }, [avatar.character, avatar.mood])
+    }, [avatar.character, avatar.mood, avatar.quiet])
 
     return (
         <div className={`avatar ${asking ? "asking" : ""}`} style={{ left: avatar.col * cellSize, top: avatar.row * cellSize, ...size }} data-avatar>

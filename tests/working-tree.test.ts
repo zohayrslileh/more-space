@@ -66,7 +66,18 @@ describe("working tree", () => {
         rmSync(root, { recursive: true, force: true })
     }, 10_000)
 
-    test("the avatar reacts in the character's own moods, then settles", () => {
+    test("terminal activity still speaks", () => {
+
+        const board = new Board()
+
+        board.expressFiles({ changed: [{ path: "a.ts", kind: "modified" }], reverted: [] })
+
+        board.expressActivity("attention")
+
+        expect(board.state().avatar.quiet).toBeUndefined()
+    })
+
+    test("the avatar reacts in the character's own moods, quietly, then settles", () => {
 
         const board = new Board()
 
@@ -74,7 +85,7 @@ describe("working tree", () => {
 
         board.expressFiles({ changed: [{ path: "src/auth.ts", kind: "modified" }], reverted: [] })
 
-        expect(board.state().avatar).toMatchObject({ mood: "working", say: "Editing auth.ts" })
+        expect(board.state().avatar).toMatchObject({ mood: "working", say: "Editing auth.ts", quiet: true })
 
         board.expressFiles({ changed: [{ path: "x.ts", kind: "added" }, { path: "y.ts", kind: "modified" }], reverted: [] })
 
@@ -85,6 +96,8 @@ describe("working tree", () => {
         expect(board.state().avatar).toMatchObject({ mood: "happy", say: "Committed: Fix the login redirect loop…" })
 
         board.setMood("thinking")
+
+        expect(board.state().avatar.quiet).toBeUndefined()
 
         board.expressFiles({ changed: [{ path: "gone.ts", kind: "deleted" }], reverted: [] })
 
