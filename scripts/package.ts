@@ -51,7 +51,9 @@ await build({
             // Not signed with a code-signing certificate yet; see README ("Unsigned builds").
             signAndEditExecutable: false
         },
-        nsis: { oneClick: false, allowToChangeInstallationDirectory: true, artifactName: "${productName}-Setup-${version}.${ext}" },
-        publish: { provider: "github", owner, repo, releaseType: "draft" }
+        nsis: { oneClick: false, allowToChangeInstallationDirectory: true, artifactName: "${productName}-Setup-${version}.${ext}", differentialPackage: false },
+        dmg: { writeUpdateInfo: false },
+        // Only what people download: no auto-update files (latest*.yml, .blockmap) until the app updates itself.
+        publish: { provider: "github", owner, repo, releaseType: "draft", publishAutoUpdate: false }
     }
 })

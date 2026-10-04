@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- macOS builds are signed ad hoc. The 0.1.0 download was refused as "damaged" on Apple silicon;
+  now macOS only asks once (System Settings → Privacy & Security → Open Anyway).
+- Releases list only the files people download.
+
 ## 0.1.0
 
 First release, for macOS, Windows and Linux.
