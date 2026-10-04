@@ -34,8 +34,10 @@ Nothing is installed in your system, and nothing is written into your project.
 
 Builds are not signed yet. The first time:
 
-- **macOS**: right-click the app and choose **Open**, or run
-  `xattr -dr com.apple.quarantine "/Applications/More Space.app"`.
+- **macOS**: open it once; when macOS says it is from an unidentified developer, go to
+  **System Settings → Privacy & Security** and choose **Open Anyway** (on older macOS, right-click
+  the app and choose **Open**). Or run `xattr -dr com.apple.quarantine "/Applications/More Space.app"`.
+  The 0.1.0 build says "damaged" instead: it was not signed at all; the command above opens it.
 - **Windows**: SmartScreen may warn about an unknown publisher; choose **More info**, then **Run anyway**.
 
 ## What the agent can do

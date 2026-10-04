@@ -29,8 +29,12 @@ await build({
             category: "public.app-category.developer-tools",
             icon: "assets/icon/icon.icns",
             target: quick ? [{ target: "dir", arch: [process.arch as "arm64" | "x64"] }] : [{ target: "dmg", arch: ["arm64", "x64"] }, { target: "zip", arch: ["arm64", "x64"] }],
-            // Not signed with a Developer ID yet; see README ("Unsigned builds").
-            identity: null
+            // No Developer ID yet: an ad-hoc signature. Apple silicon refuses an unsigned download as
+            // "damaged"; ad-hoc signed, it is only "unidentified", which right-click → Open gets past.
+            identity: "-",
+            // Hardened runtime is for notarizing with a Developer ID; with an ad-hoc signature it would
+            // stop the app from loading its native terminal library.
+            hardenedRuntime: false
         },
         linux: {
             icon: "assets/icon/icon.png",
