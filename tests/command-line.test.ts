@@ -34,7 +34,8 @@ test("the command an agent runs reaches the board and answers", async () => {
 
     const run = async (line: string) => {
 
-        const child = Bun.spawn([...shell, line], { env: environment, stdout: "pipe", stderr: "pipe" })
+        // powershell -Command turns any failing exit into 1; $LASTEXITCODE holds what the command returned.
+        const child = Bun.spawn([...shell, windows ? `${line}; exit $LASTEXITCODE` : line], { env: environment, stdout: "pipe", stderr: "pipe" })
 
         const [code, out, error] = await Promise.all([child.exited, new Response(child.stdout).text(), new Response(child.stderr).text()])
 
