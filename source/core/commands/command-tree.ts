@@ -105,6 +105,8 @@ Colors  Each color means one thing: ${describeColors()}.
 Avatar  You, as a character the user picked. "${command} avatar info" tells you which one and its
         moods, each with when to use it. Run it first, and again if a mood is refused: the user
         may switch characters while you work. It takes ${avatarSpan.cols}x${avatarSpan.rows} cells from its position.
+        It also reacts by itself to the terminal and to files changing on the branch (edits, new
+        and deleted files, commits); posing it yourself takes over for a while.
 Ask     "${command} ask" puts a question on the board and waits for the user: one choice,
         several (--multi), their own words (--other, --text), or a 1..N scale (--scale N).
         Several questions are fine: the user's view visits them in the order asked.

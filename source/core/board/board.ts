@@ -1,6 +1,7 @@
 import type { AskItem, Avatar, BoardSnapshot, BoardState, Cell, Item, Link, Mark, Size, Viewport, ViewRequest } from "./board-types"
 import { defaultCharacter, findCharacter, type Expression } from "@/core/avatar/characters"
 import type { Activity } from "@/core/terminal/activity"
+import type { FileChange } from "@/core/project/working-tree"
 
 type ItemInput = Item extends infer I ? I extends Item ? Omit<I, "id" | "createdAt" | "erasedAt"> : never : never
 
@@ -40,6 +41,9 @@ export default class Board {
     private automatic = { mood: false, say: false }
 
     private calmTimer: ReturnType<typeof setTimeout> | undefined
+
+    // What the terminal last seemed to be doing; a reaction settles back to it.
+    private terminal: Activity = "idle"
 
     private avatar: Avatar = { col: 10, row: 4, mood: "idle", character: defaultCharacter }
 
@@ -353,17 +357,54 @@ export default class Board {
     // current character's own moods (by expression), and yields while the agent is posing it itself.
     public expressActivity(activity: Activity) {
 
-        if (Date.now() - this.agentTouchedAvatar < agentPrecedence) return
+        const was = this.terminal
 
-        clearTimeout(this.calmTimer)
+        this.terminal = activity
+
+        const line = activity === "attention" ? "Your turn in the terminal" : activity === "idle" && was === "working" ? "Done" : undefined
+
+        const mood = activity === "working" ? this.moodFor(["working"]) : activity === "attention" ? this.moodFor(["alert", "surprised", "confused"]) : line ? this.moodFor(["happy", "calm"]) : "idle"
+
+        // "Done" settles back to rest after a moment.
+        this.express(mood, line, activity === "idle" && !!line)
+    }
+
+    // The avatar notices files changing on the branch: edits, new and deleted files, undone edits, commits.
+    public expressFiles(change: FileChange) {
+
+        const name = (path: string) => path.split("/").pop() ?? path
+
+        const { changed, reverted, commit } = change
+
+        const kinds = new Set(changed.map(file => file.kind))
+
+        const only = (kind: string) => kinds.size === 1 && kinds.has(kind as never)
+
+        const [mood, line] = commit ? [this.moodFor(["excited", "happy"]), commit.subject ? `Committed: ${clip(commit.subject, 28)}` : "Committed!"]
+            : changed.length > 1 ? [this.moodFor(["working"]), `${changed.length} files changed`]
+            : only("added") ? [this.moodFor(["excited", "happy"]), `New: ${clip(name(changed[0]!.path), 24)}`]
+            : only("deleted") ? [this.moodFor(["surprised", "confused"]), `Deleted ${clip(name(changed[0]!.path), 24)}`]
+            : changed.length ? [this.moodFor(["working"]), `Editing ${clip(name(changed[0]!.path), 24)}`]
+            : reverted.length ? [this.moodFor(["thinking", "neutral"]), reverted.length > 1 ? `Undid ${reverted.length} files` : `Undid ${clip(name(reverted[0]!), 24)}`]
+            : ["idle", undefined]
+
+        this.express(mood, line, true)
+    }
+
+    // The character's first mood with one of these expressions.
+    private moodFor(expressions: Expression[]) {
 
         const character = findCharacter(this.avatar.character)
 
-        const moodFor = (expressions: Expression[]) => expressions.map(expression => character.moods.find(mood => mood.expression === expression)).find(Boolean)?.name ?? "idle"
+        return expressions.map(expression => character.moods.find(mood => mood.expression === expression)).find(Boolean)?.name ?? "idle"
+    }
 
-        const line = activity === "attention" ? "Your turn in the terminal" : activity === "idle" && this.avatar.mood === moodFor(["working"]) ? "Done" : undefined
+    // An automatic mood and line; with settle, it goes back to what the terminal shows after a moment.
+    private express(mood: string, line: string | undefined, settle: boolean) {
 
-        const mood = activity === "working" ? moodFor(["working"]) : activity === "attention" ? moodFor(["alert", "surprised", "confused"]) : line ? moodFor(["happy", "calm"]) : "idle"
+        if (Date.now() - this.agentTouchedAvatar < agentPrecedence) return
+
+        clearTimeout(this.calmTimer)
 
         // A line the agent wrote stays; an automatic one is replaced or cleared.
         const say = this.avatar.say && !this.automatic.say ? this.avatar.say : line
@@ -374,12 +415,11 @@ export default class Board {
 
         this.changed()
 
-        // "Done" settles back to rest after a moment.
-        if (activity === "idle" && line) this.calmTimer = setTimeout(() => {
+        if (settle) this.calmTimer = setTimeout(() => {
 
             if (!this.automatic.mood) return
 
-            this.avatar = { ...this.avatar, mood: "idle", say: this.automatic.say ? undefined : this.avatar.say }
+            this.avatar = { ...this.avatar, mood: this.terminal === "working" ? this.moodFor(["working"]) : "idle", say: this.automatic.say ? undefined : this.avatar.say }
 
             this.automatic = { mood: true, say: false }
 
@@ -472,4 +512,9 @@ function fits(item: AskItem, answer: string[]) {
     if (item.mode === "choice") return answer.length === 1 && (known(answer[0]!) || !!item.other)
 
     return answer.length >= 1 && (chosenOther.length === 0 || (!!item.other && chosenOther.length === 1))
+}
+
+function clip(text: string, length: number) {
+
+    return text.length > length ? `${text.slice(0, length - 1)}…` : text
 }

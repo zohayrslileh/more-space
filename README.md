@@ -54,8 +54,13 @@ Everything starts from the command with no arguments; each level explains the ne
 Several commands can go in one call: `more-space - <<'EOF'` with one command per line.
 Every write answers with the cells it really covers, and warns when it lands on something else.
 
-The avatar also follows the terminal by itself: it looks busy while the program keeps printing, shows
-"Done" when it goes quiet, and calls you when the program rings the bell or sends a notification.
+The avatar also lives along by itself:
+
+- **the terminal**: busy while the program keeps printing, "Done" when it goes quiet, and calling you
+  when the program rings the bell or sends a notification;
+- **the branch**: it notices files changing as git sees them (an edit, a new or deleted file, an
+  undone edit, a commit) and reacts in its own moods. Ignored files, like dependencies and builds,
+  never count.
 
 ## Characters, sound and handwriting
 

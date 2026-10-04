@@ -84,8 +84,15 @@ export default class Application {
 
         const terminals = new TerminalManager(binDirectory, socketPath, project?.path ?? homedir(), options.terminalEvents)
 
-        return new Application(project, board, assets, settings, terminals, commandServer, boardStore, runtimeDirectory)
+        const application = new Application(project, board, assets, settings, terminals, commandServer, boardStore, runtimeDirectory)
+
+        // The avatar notices files changing on the branch while the agent works.
+        application.stopWatching = project?.watchChanges(change => board.expressFiles(change)) ?? (() => { })
+
+        return application
     }
+
+    private stopWatching = () => { }
 
     public async chooseFont(id: string) {
 
@@ -104,6 +111,8 @@ export default class Application {
     }
 
     public async dispose() {
+
+        this.stopWatching()
 
         this.terminals.closeAll()
 

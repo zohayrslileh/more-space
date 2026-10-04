@@ -3,6 +3,7 @@ import { watch, type FSWatcher } from "node:fs"
 import { basename, join } from "node:path"
 import { execFile } from "node:child_process"
 import { createHash } from "node:crypto"
+import { watchWorkingTree, type FileChange } from "./working-tree"
 
 // How often the branch is re-read in case a change was not seen by the watcher.
 const branchPoll = 10_000
@@ -50,6 +51,12 @@ export default class Project {
 
         // Detached HEAD: show the commit instead.
         return branch === "HEAD" ? await git(this.path, "rev-parse", "--short", "HEAD") : branch
+    }
+
+    // Calls back with what changed in the working tree (git projects only). Returns a function that stops.
+    public watchChanges(listener: (change: FileChange) => void) {
+
+        return this.gitDirectory ? watchWorkingTree(this.path, listener) : () => { }
     }
 
     // Calls back whenever the branch changes. Returns a function that stops watching.
